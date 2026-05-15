@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+<title>LISA NOX — Onirophobie</title>
+<style>
+
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: 'Helvetica Neue', sans-serif;
+  overflow-x: hidden;
+}
+
+/* ===== FOND ONIRIQUE ===== */
+.bg {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #111 0%, #000 70%);
+  z-index: -1;
+  animation: pulse 8s infinite alternate;
+}
+
+@keyframes pulse {
+  0% {opacity: 0.8;}
+  100% {opacity: 1;}
+}
+
+/* ===== CONTENU CENTRAL (HOME) ===== */
+.center {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+h1 {
+  font-size: 3em;
+  letter-spacing: 10px;
+  opacity: 0;
+  animation: fadeIn 3s forwards;
+}
+
+.tagline {
+  margin-top: 20px;
+  font-size: 1.2em;
+  opacity: 0;
+  animation: fadeIn 5s forwards;
+}
+
+/* ===== SCROLL INDICATOR ===== */
+.scroll {
+  position: absolute;
+  bottom: 30px;
+  font-size: 0.8em;
+  opacity: 0.5;
+  animation: blink 2s infinite;
+}
+
+@keyframes blink {
+  0%,100% {opacity: 0.3;}
+  50% {opacity: 1;}
+}
+
+/* ===== SECTION ===== */
+.section {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 1s ease;
+}
+
+.section.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 20px;
+  right: 30px;
+  font-size: 0.9em;
+  z-index: 10;
+}
+
+nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 20px;
+  opacity: 0.5;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+nav a:hover {
+  opacity: 1;
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn {
+  to {opacity: 1;}
+}
+
+</style>
+
+
+<style>
+/* Toggle audio — position DROITE + néon fushia */
+#audioToggle {
+    position: fixed;
+    bottom: 24px;
+    right: 24px; /* ← CHANGEMENT : droite au lieu de centre */
+    left: auto;  /* ← CHANGEMENT : annule le centrage */
+    transform: none; /* ← CHANGEMENT : supprime translateX */
+    z-index: 100;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 0, 150, 0.4); /* ← CHANGEMENT : bordure rose */
+    border-radius: 50%;
+    background: rgba(10, 10, 15, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    opacity: 0.9;
+    /* ← AJOUT : glow néon permanent subtil */
+    box-shadow: 0 0 10px rgba(255, 0, 150, 0.2), 
+                0 0 20px rgba(255, 0, 150, 0.1);
+}
+
+/* Hover + actif — néon intense */
+#audioToggle:hover,
+#audioToggle.active {
+    border-color: #FF00AA; /* ← CHANGEMENT : rose fushia pur */
+    color: #FF00AA;
+    opacity: 1;
+    /* ← AJOUT : glow néon puissant */
+    box-shadow: 0 0 15px rgba(255, 0, 170, 0.6), 
+                0 0 30px rgba(255, 0, 170, 0.4),
+                0 0 45px rgba(255, 0, 170, 0.2);
+    animation: pulse-neon 2s ease-in-out infinite;
+}
+
+/* ← AJOUT : animation pulsation néon */
+@keyframes pulse-neon {
+    0%, 100% { 
+        box-shadow: 0 0 15px rgba(255,0,170,0.6), 
+                    0 0 30px rgba(255,0,170,0.4); 
+    }
+    50% { 
+        box-shadow: 0 0 20px rgba(255,0,170,0.9), 
+                    0 0 40px rgba(255,0,170,0.6),
+                    0 0 60px rgba(255,0,170,0.3); 
+    }
+}
+
+/* Icônes — couleur néon */
+#audioToggle svg {
+    width: 18px;
+    height: 18px;
+    transition: opacity 0.2s ease, stroke 0.2s ease;
+    stroke: #FF66CC; /* ← CHANGEMENT : rose clair par défaut */
+}
+#audioToggle:hover svg,
+#audioToggle.active svg {
+    stroke: #FF00AA; /* ← CHANGEMENT : rose fushia au hover/actif */
+}
+
+/* Hint — coordonné néon */
+#audioHint {
+    position: fixed;
+    bottom: 80px;
+    right: 24px; /* ← CHANGEMENT : aligné à droite sous l'icône */
+    left: auto;
+    transform: none;
+    z-index: 99;
+    padding: 6px 14px;
+    background: rgba(26, 26, 36, 0.98);
+    border: 1px solid rgba(255, 0, 170, 0.5); /* ← CHANGEMENT : bordure rose */
+    border-radius: 18px;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: #FF66CC; /* ← CHANGEMENT : texte rose */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    text-transform: uppercase;
+    text-shadow: 0 0 8px rgba(255, 0, 170, 0.4); /* ← AJOUT : glow texte */
+}
+#audioHint.visible { opacity: 1; }
+</style>
+
+
+
+</head>
+<body>
+
+<div class="bg"></div>
+
+<!-- NAVIGATION AVEC HOME -->
+<nav>
+  <a data-target="home">HOME</a>
+  <a data-target="music">MUSIQUE</a>
+  <a data-target="universe">UNIVERS</a>
+  <a data-target="support">SUPPORT</a>
+</nav>
+
+
+
+
+
+
+
+
+<!-- INTRO (HOME) -->
+<div class="center" id="home">
+  <h1>LISA NOX</h1>
+  <div class="tagline">JE SUIS CELLE QUI RÊVE</div>
+  <div class="scroll">↓ entrer</div>
+</div>
+
+<!-- MUSIQUE -->
+<div class="section" id="music">
+  <h2>VOIX ENTRE DEUX MONDES</h2>
+  <p>Chaque note est un fragment de rêve brisé.</p>
+<iframe width="560" height="315" 
+    src="https://www.youtube.com/embed/dnDUHVQ5JMA?autoplay=1&controls=0&loop=1&playlist=dnDUHVQ5JMA&rel=0&modestbranding=1" 
+    frameborder="0" 
+    allow="autoplay; encrypted-media" allowfullscreen> 
+</iframe>
+
+
+
+</div>
+
+<!-- UNIVERS -->
+<div class="section" id="universe">
+  <h2>ONIROPHOBIE</h2>
+  <p>
+    LISA voit ce que les autres ne voient pas.<br>
+    Ses rêves annoncent la mort.<br><br>
+    Elle marche entre les lignes du destin.
+  </p>
+</div>
+
+
+
+<!-- SUPPORT -->
+<div class="section" id="support">
+  <h2>SOUTENIR</h2>
+  <p>Rejoindre le rêve. Accéder à l’interdit.</p>
+  <a href="https://fr.tipeee.com/onirophobie" target="_blank">Soutenir LISA NOX</a>
+  <iframe data-testid="embed-iframe" style="border-radius:12px" src="https://open.spotify.com/embed/artist/2rDmQV27WZynR1Bq62C0aA?utm_source=generator&theme=0" width="100%" height="352" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+// Apparition des sections au scroll
+const sections = document.querySelectorAll('.section');
+
+window.addEventListener('scroll', () => {
+  sections.forEach(sec => {
+    const rect = sec.getBoundingClientRect();
+    if(rect.top < window.innerHeight - 100){
+      sec.classList.add('visible');
+    }
+  });
+});
+
+// Gestion des clics sur la navigation (HOME compris)
+const navLinks = document.querySelectorAll('nav a');
+
+function scrollToSection(sectionId) {
+  let targetElement = null;
+  if (sectionId === 'home') {
+    targetElement = document.getElementById('home');
+  } else {
+    targetElement = document.getElementById(sectionId);
+  }
+  
+  if (targetElement) {
+    const offset = 80; // décalage pour ne pas cacher sous la nav
+    const elementPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+    window.scrollTo({
+      top: elementPosition - offset,
+      behavior: 'smooth'
+    });
+  }
+}
+
+navLinks.forEach(link => {
+  link.addEventListener('click', (e) => {
+    e.preventDefault();
+    const target = link.getAttribute('data-target');
+    if (target) {
+      scrollToSection(target);
+      history.pushState(null, null, `#${target === 'home' ? '' : target}`);
+    }
+  });
+});
+</script>
+
+
+
+<!-- Toggle Icon (bas centre) -->
+<button id="audioToggle" aria-label="Ambiance onirique" title="Activer/couper le son" style="
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%); z-index:100;
+    width:40px; height:40px; border:1px solid rgba(255,255,255,0.12);
+    border-radius:50%; background:rgba(10,10,15,0.95);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    transition:all 0.25s ease; opacity:0.9;
+">
+    <svg class="icon-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;transition:opacity 0.2s;">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+    </svg>
+    <svg class="icon-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:16px;height:16px;opacity:0;position:absolute;transition:opacity 0.2s;">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+        <path d="M16 13a3 3 0 0 0 3-3" stroke-linecap="round"/>
+        <path d="M19 9a6 6 0 0 0 6-6" stroke-linecap="round" opacity="0.6"/>
+    </svg>
+</button>
+
+<!-- Audio Element -->
+<audio id="ambientAudio" loop preload="auto" playsinline>
+    <source src="assets/audio/ambiance-onirique.mp3" type="audio/mpeg">
+</audio>
+
+<!-- Script Ultra-Simple : Activation immédiate -->
+<script>
+(function() {
+    const audio = document.getElementById('ambientAudio');
+    const toggle = document.getElementById('audioToggle');
+    const iconOff = toggle.querySelector('.icon-off');
+    const iconOn = toggle.querySelector('.icon-on');
+    
+    audio.volume = 0.06; // -24 LUFS specs dp
+    let isPlaying = false;
+    let activated = false;
+
+    // Fonction d'activation audio + UI
+    const playAudio = async () => {
+        if (activated) return;
+        activated = true;
+        
+        try {
+            await audio.play();
+            isPlaying = true;
+            iconOff.style.opacity = '0';
+            iconOn.style.opacity = '1';
+            toggle.classList.add('active');
+            toggle.style.borderColor = '#4A3B8C';
+            toggle.style.boxShadow = '0 0 25px rgba(74,59,140,0.35)';
+        } catch (e) {
+            console.log('Audio blocked, waiting for next gesture');
+            activated = false; // Réessayer au prochain geste
+        }
+    };
+
+    // TOUS les événements possibles — sans filtre, sans condition
+    const events = [
+        'click','mousedown','mouseup','touchstart','touchend',
+        'keydown','keyup','wheel','scroll','mousemove','touchmove',
+        'focus','blur','resize','orientationchange'
+    ];
+
+    // Handler unique : joue + nettoie TOUT
+    const trigger = (e) => {
+        playAudio();
+        // Supprime TOUS les listeners après première tentative
+        events.forEach(evt => {
+            window.removeEventListener(evt, trigger, true);
+            window.removeEventListener(evt, trigger, false);
+            document.removeEventListener(evt, trigger, true);
+            document.removeEventListener(evt, trigger, false);
+        });
+    };
+
+    // Ajoute les listeners sur window ET document, capture ET bubble
+    events.forEach(evt => {
+        window.addEventListener(evt, trigger, true);
+        window.addEventListener(evt, trigger, false);
+        document.addEventListener(evt, trigger, true);
+        document.addEventListener(evt, trigger, false);
+    });
+
+    // Toggle manuel (mute/unmute) — toujours fonctionnel
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (isPlaying) {
+            audio.pause();
+            isPlaying = false;
+            iconOff.style.opacity = '1';
+            iconOn.style.opacity = '0';
+            toggle.style.borderColor = 'rgba(255,255,255,0.12)';
+            toggle.style.boxShadow = 'none';
+        } else {
+            audio.play().then(() => {
+                isPlaying = true;
+                iconOff.style.opacity = '0';
+                iconOn.style.opacity = '1';
+                toggle.style.borderColor = '#4A3B8C';
+                toggle.style.boxShadow = '0 0 25px rgba(74,59,140,0.35)';
+            }).catch(() => {});
+        }
+    });
+
+    // Pause si onglet inactif
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden && isPlaying) audio.pause();
+        else if (!document.hidden && isPlaying) audio.play().catch(()=>{});
+    });
+})();
+</script>
+
+
+
+</body>
+</html>
